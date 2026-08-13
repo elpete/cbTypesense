@@ -40,7 +40,7 @@ jobs:
             experimental: true
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       # DATABASE SETUP: uncomment if you need to setup a database
       # - name: Setup Database and Fixtures
@@ -69,7 +69,9 @@ jobs:
           printf "DB_BUNDLENAME=com.mysql.cj\n" >> .env
 
       - name: Setup CommandBox CLI
-        uses: Ortus-Solutions/setup-commandbox@v2.0.1
+        uses: ortus-boxlang/setup-boxlang@main
+        with:
+          with-commandbox: true
 
       - name: Install Dependencies
         run: |
@@ -89,7 +91,7 @@ jobs:
           box testbox run --verbose outputFile=test-harness/tests/results/test-results outputFormats=json,antjunit
 
       - name: Publish Test Reports
-        uses: mikepenz/action-junit-report@v6.0.1
+        uses: mikepenz/action-junit-report@v6.4.2
         if: always()
         with:
           report_paths: |
@@ -101,7 +103,7 @@ jobs:
 
       - name: Upload Test Results to Artifacts
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: test-results-${{ matrix.cfengine }}-${{ matrix.coldboxVersion }}
           path: |
@@ -114,7 +116,7 @@ jobs:
 
       - name: Upload Debug Logs To Artifacts
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: Failure Debugging Info - ${{ matrix.cfengine }} - ${{ matrix.coldboxVersion }}
           path: |
