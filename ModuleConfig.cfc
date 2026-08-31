@@ -8,7 +8,7 @@ component {
 	// Module Properties
 	this.title       = "cbTypesense";
 	this.author      = "Eric Peterson";
-	this.webURL      = "https://github.com/coldbox-modules/cbtypesense";
+	this.webURL      = "https://github.com/elpete/cbTypesense";
 	this.description = "A resilient Typesense API client for ColdBox";
 	this.version     = "@build.version@+@build.number@";
 

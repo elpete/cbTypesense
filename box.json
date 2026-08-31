@@ -3,13 +3,13 @@
     "version":"1.0.0",
     "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbtypesense/@build.version@/cbtypesense-@build.version@.zip",
     "author":"Eric Peterson <eric@elpete.com>",
-    "homepage":"https://github.com/coldbox-modules/cbtypesense",
-    "documentation":"https://github.com/coldbox-modules/cbtypesense",
+    "homepage":"https://github.com/elpete/cbTypesense",
+    "documentation":"https://github.com/elpete/cbTypesense",
     "repository":{
         "type":"git",
-        "url":"https://github.com/coldbox-modules/cbtypesense"
+        "url":"https://github.com/elpete/cbTypesense"
     },
-    "bugs":"https://github.com/coldbox-modules/cbtypesense",
+    "bugs":"https://github.com/elpete/cbTypesense/issues",
     "shortDescription":"A resilient Typesense API client for ColdBox",
     "slug":"cbtypesense",
     "type":"modules",
@@ -17,7 +17,7 @@
     "license":[
         {
             "type":"MIT",
-            "url":"https://github.com/coldbox-modules/cbtypesense/blob/main/LICENSE"
+            "url":"https://github.com/elpete/cbTypesense/blob/main/LICENSE"
         }
     ],
     "contributors":[],

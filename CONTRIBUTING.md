@@ -102,8 +102,8 @@ You can support ColdBox and all of our Open Source initiatives at Ortus Solution
 Thank you to all the people who have already contributed to cbTypesense! We :heart: :heart: :heart: love you!
 
 
-<a href = "https://github.com/coldbox-modules/cbTypesense/graphs/contributors">
-  <img src = "https://contrib.rocks/image?repo=coldbox-modules/cbTypesense"/>
+<a href = "https://github.com/elpete/cbTypesense/graphs/contributors">
+  <img src = "https://contrib.rocks/image?repo=elpete/cbTypesense"/>
 </a>
 
 Made with [contributors-img](https://contrib.rocks)
