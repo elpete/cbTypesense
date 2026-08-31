@@ -1,5 +1,5 @@
 {
-	"name":"@MODULE_NAME@-boxlang-cfml@1",
+    "name":"cbTypesense-boxlang-cfml@1",
     "app":{
         "serverHomeDirectory":".engine/boxlang-cfml",
         "cfengine":"boxlang@1"
@@ -11,22 +11,21 @@
         "rewrites":{
             "enable":"true"
         },
-		"webroot": "test-harness",
-		"aliases":{
-            "/moduleroot/@MODULE_NAME@":"../"
+        "webroot":"test-harness",
+        "aliases":{
+            "/moduleroot/cbTypesense":"../"
         }
     },
     "JVM":{
         "heapSize":"768",
         "javaVersion":"openjdk21_jre",
-        "args":"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8888"
+        "args":"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=8890"
     },
-	"openBrowser":"false",
+    "openBrowser":"false",
     "cfconfig":{
         "file":".cfconfig.json"
     },
-    "env":{
-    },
+    "env":{},
     "scripts":{
         "onServerInitialInstall":"install bx-compat-cfml --noSave"
     }

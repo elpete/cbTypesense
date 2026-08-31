@@ -48,6 +48,19 @@
 			exclude = []
 		};
 
+		moduleSettings = {
+			cbtypesense : {
+				defaultConnection : "search",
+				connections : {
+					search : {
+						nodes : [ { protocol : "http", host : "127.0.0.1", port : 8108 } ],
+						apiKey : "test-search-key",
+						retries : 0
+					}
+				}
+			}
+		};
+
 		//Register interceptors as an array, we need order
 		interceptors = [
 		];

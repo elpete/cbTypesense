@@ -6,27 +6,45 @@
 component {
 
 	// Module Properties
-	this.title 				= "@MODULE_NAME@";
-	this.author 			= "Ortus Solutions";
-	this.webURL 			= "https://www.ortussolutions.com";
-	this.description 		= "@MODULE_DESCRIPTION@";
-	this.version 			= "@build.version@+@build.number@";
+	this.title       = "cbTypesense";
+	this.author      = "Eric Peterson";
+	this.webURL      = "https://github.com/coldbox-modules/cbtypesense";
+	this.description = "A resilient Typesense API client for ColdBox";
+	this.version     = "@build.version@+@build.number@";
 
 	// Model Namespace
-	this.modelNamespace		= "@MODULE_SLUG@";
+	this.modelNamespace = "cbtypesense";
 
 	// CF Mapping
-	this.cfmapping			= "@MODULE_SLUG@";
+	this.cfmapping = "cbtypesense";
 
 	// Dependencies
-	this.dependencies 		= [];
+	this.dependencies = [ "hyper" ];
 
 	/**
 	 * Configure Module
 	 */
 	function configure(){
 		settings = {
-
+			defaultConnection  : "default",
+			unhealthyNodeTtlMs : 30000,
+			maxRetries         : 3,
+			connections        : {
+				default : {
+					nodes : [
+						{
+							protocol : getSystemSetting( "TYPESENSE_PROTOCOL", "http" ),
+							host     : getSystemSetting( "TYPESENSE_HOST", "127.0.0.1" ),
+							port     : getSystemSetting( "TYPESENSE_PORT", 8108 )
+						}
+					],
+					apiKey           : getSystemSetting( "TYPESENSE_API_KEY", "" ),
+					connectTimeoutMs : 500,
+					readTimeoutMs    : 1500,
+					retries          : 1,
+					retryBackoffMs   : 25
+				}
+			}
 		};
 	}
 
@@ -34,14 +52,12 @@ component {
 	 * Fired when the module is registered and activated.
 	 */
 	function onLoad(){
-
 	}
 
 	/**
 	 * Fired when the module is unregistered and unloaded
 	 */
 	function onUnload(){
-
 	}
 
 }

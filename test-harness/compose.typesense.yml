@@ -1,0 +1,19 @@
+services:
+  typesense:
+    image: typesense/typesense:29.0@sha256:316b7e71c21f7e5e5caa8daa150e1b3f2be8c876081ee1f77bc2d92cd7f137d0
+    command:
+      - --data-dir=/data
+      - --api-key=cbtypesense-live-test-key
+      - --enable-cors=false
+    ports:
+      - "127.0.0.1:18108:8108"
+    volumes:
+      - cbtypesense-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--output-document=-", "http://127.0.0.1:8108/health"]
+      interval: 2s
+      timeout: 1s
+      retries: 30
+
+volumes:
+  cbtypesense-data:

@@ -1,56 +1,66 @@
 {
-	"name" 		: "@MODULE_NAME@",
-	"version"   : "1.0.0",
-    "location"  : "https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/@MODULE_SLUG@/@build.version@/@MODULE_SLUG@-@build.version@.zip",
-	"author" 	: "Ortus Solutions <info@ortussolutions.com>",
-	"homepage"	: "https://github.com/coldbox-modules/@MODULE_SLUG@",
-	"documentation"		: "https://github.com/coldbox-modules/@MODULE_SLUG@",
-	"repository"		: { "type" : "git", "url" : "https://github.com/coldbox-modules/@MODULE_SLUG@" },
-	"bugs" : "https://github.com/coldbox-modules/@MODULE_SLUG@",
-	"shortDescription"	: "Description goes here",
-	"slug"		: "@MODULE_SLUG@",
-	"type"		: "modules",
-	"keywords":"",
-	"license"			: [
-		{ "type" : "Apache2", "url" : "http://www.apache.org/licenses/LICENSE-2.0.html" }
-	],
-	"contributors"		: [
-	],
-	"dependencies" 	:{
-	},
-	"devDependencies" 	:{
-		"commandbox-boxlang":"*",
-		"commandbox-cfformat":"*",
+    "name":"cbTypesense",
+    "version":"1.0.0",
+    "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbtypesense/@build.version@/cbtypesense-@build.version@.zip",
+    "author":"Eric Peterson <eric@elpete.com>",
+    "homepage":"https://github.com/coldbox-modules/cbtypesense",
+    "documentation":"https://github.com/coldbox-modules/cbtypesense",
+    "repository":{
+        "type":"git",
+        "url":"https://github.com/coldbox-modules/cbtypesense"
+    },
+    "bugs":"https://github.com/coldbox-modules/cbtypesense",
+    "shortDescription":"A resilient Typesense API client for ColdBox",
+    "slug":"cbtypesense",
+    "type":"modules",
+    "keywords":"typesense,search,coldbox,boxlang,cfml,http",
+    "license":[
+        {
+            "type":"MIT",
+            "url":"https://github.com/coldbox-modules/cbtypesense/blob/main/LICENSE"
+        }
+    ],
+    "contributors":[],
+    "dependencies":{
+        "hyper":"^8.2.1"
+    },
+    "devDependencies":{
+        "commandbox-boxlang":"*",
+        "commandbox-cfformat":"*",
         "commandbox-docbox":"*"
-	},
-	"ignore":[
+    },
+    "ignore":[
         "**/.*",
         "test-harness",
-		"/server*.json"
+        "/modules/",
+        "/.engine/",
+        "/server*.json"
     ],
-	"scripts":{
-		"setupTemplate": "task run taskFile=build/SetupTemplate.cfc",
-		"build:module":"task run taskFile=build/Build.cfc :projectName=`package show slug` :version=`package show version`",
-		"build:docs":"task run taskFile=build/Build.cfc target=docs :projectName=`package show slug` :version=`package show version`",
+    "scripts":{
+        "build:module":"task run taskFile=build/Build.cfc :projectName=`package show slug` :version=`package show version`",
+        "build:docs":"task run taskFile=build/Build.cfc target=docs :projectName=`package show slug` :version=`package show version`",
         "install:dependencies":"install && cd test-harness && install",
-		"release":"recipe build/release.boxr",
+        "release":"recipe build/release.boxr",
         "format":"cfformat run helpers,models,test-harness/tests/,ModuleConfig.cfc --overwrite",
         "format:watch":"cfformat watch helpers,models,test-harness/tests/,ModuleConfig.cfc ./.cfformat.json",
         "format:check":"cfformat check helpers,models,test-harness/tests/,ModuleConfig.cfc ./.cfformat.json",
-		"start:boxlang" : "server start serverConfigFile=server-boxlang-cfml@1.json",
-		"start:lucee" : "server start serverConfigFile=server-lucee@5.json",
-		"start:2023" : "server start serverConfigFile=server-adobe@2023.json",
-		"stop:boxlang" : "server stop serverConfigFile=server-boxlang-cfml@1.json",
-		"stop:lucee" : "server stop serverConfigFile=server-lucee@5.json",
-		"stop:2023" : "server stop serverConfigFile=server-adobe@2023.json",
-		"logs:boxlang" : "server log serverConfigFile=server-boxlang-cfml@1.json",
-		"logs:lucee" : "server log serverConfigFile=server-lucee@5.json --follow",
-		"logs:2023" : "server log serverConfigFile=server-adobe@2023.json --follow",
-		"forget:lucee" : "server forget serverConfigFile=server-lucee@5.json",
-		"forget:2023" : "server forget serverConfigFile=server-adobe@2023.json",
-        "forget:boxlang" : "server forget serverConfigFile=server-boxlang-cfml@1.json"
+        "start:boxlang":"server start serverConfigFile=server-boxlang-cfml@1.json",
+        "start:lucee":"server start serverConfigFile=server-lucee@5.json",
+        "start:2023":"server start serverConfigFile=server-adobe@2023.json",
+        "stop:boxlang":"server stop serverConfigFile=server-boxlang-cfml@1.json",
+        "stop:lucee":"server stop serverConfigFile=server-lucee@5.json",
+        "stop:2023":"server stop serverConfigFile=server-adobe@2023.json",
+        "logs:boxlang":"server log serverConfigFile=server-boxlang-cfml@1.json",
+        "logs:lucee":"server log serverConfigFile=server-lucee@5.json --follow",
+        "logs:2023":"server log serverConfigFile=server-adobe@2023.json --follow",
+        "forget:lucee":"server forget serverConfigFile=server-lucee@5.json",
+        "forget:2023":"server forget serverConfigFile=server-adobe@2023.json",
+        "forget:boxlang":"server forget serverConfigFile=server-boxlang-cfml@1.json"
     },
-	"testbox":{
+    "testbox":{
         "runner":"http://localhost:60299/tests/runner.cfm"
+    },
+    "installPaths":{
+        "hyper":"modules/hyper/"
     }
 }

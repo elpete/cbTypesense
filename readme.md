@@ -1,101 +1,126 @@
-<p align="center">
-	<img src="https://www.ortussolutions.com/__media/coldbox-185-logo.png">
-	<br>
-	<img src="https://www.ortussolutions.com/__media/wirebox-185.png" height="125">
-	<img src="https://www.ortussolutions.com/__media/cachebox-185.png" height="125" >
-	<img src="https://www.ortussolutions.com/__media/logbox-185.png"  height="125">
-</p>
+# cbTypesense
 
-<p align="center">
-	Copyright Since 2005 ColdBox Platform by Luis Majano and Ortus Solutions, Corp
-	<br>
-	<a href="https://www.coldbox.org">www.coldbox.org</a> |
-	<a href="https://www.ortussolutions.com">www.ortussolutions.com</a>
-</p>
+A resilient, endpoint-oriented [Typesense](https://typesense.org/) client for ColdBox applications. cbTypesense uses Hyper 8, supports named least-privilege connections, and keeps application-specific search projection and authorization outside the module.
 
-----
+## Compatibility
 
-# Ortus ColdBox Module Template
+- ColdBox 8
+- Hyper 8.2+
+- BoxLang and CFML engines supported by the current ColdBox module template
+- Typesense 29.x; the live contract suite pins `typesense/typesense:29.0@sha256:316b7e71c21f7e5e5caa8daa150e1b3f2be8c876081ee1f77bc2d92cd7f137d0`
 
-This template can be used to create Ortus based ColdBox Modules.  To use, just click the `Use this Template` button in the github repository: https://github.com/coldbox-modules/module-template and run the setup task from where you cloned it.
+The exact upstream source, license checksum, and container provenance are recorded in [`compatibility/typesense-29.0.md`](compatibility/typesense-29.0.md).
+
+The module is MIT licensed. Typesense 29.0 is a separate GPL-3.0 program and is not bundled in this package.
+
+## Installation
 
 ```bash
-box task run taskFile=build/SetupTemplate
+box install cbtypesense
 ```
 
-The `SetupTemplate` task will ask you for your module name, id and description and configure the template for you! Enjoy!
+## Configuration
 
-## Directory Structure
+Configure one or more named connections in `config/ColdBox.cfc`. Keep search, indexing, and administrative credentials separate in production.
 
-The root of the module is the root of the repository. Add all the necessary files your module will need.
+```cfml
+moduleSettings = {
+    cbtypesense : {
+        defaultConnection : "search",
+        unhealthyNodeTtlMs : 30000,
+        maxRetries : 3,
+        connections : {
+            search : {
+                nodes : [
+                    { protocol : "http", host : "127.0.0.1", port : 8108 }
+                ],
+                apiKey : getSystemSetting( "TYPESENSE_SEARCH_API_KEY", "" ),
+                connectTimeoutMs : 500,
+                readTimeoutMs : 1500,
+                retries : 1,
+                retryBackoffMs : 25
+            },
+            indexer : {
+                nodes : [
+                    { protocol : "http", host : "127.0.0.1", port : 8108 }
+                ],
+                apiKey : getSystemSetting( "TYPESENSE_INDEX_API_KEY", "" )
+            }
+        }
+    }
+};
+```
 
-* `.github/workflows` - These are the github actions to test and build the module via CI
-* `build` - This is the CommandBox task that builds the project.  Only modify if needed.  Most modules will never modify it. (Modify if needed)
-* `test-harness` - This is a ColdBox testing application, where you will add your testing files, specs etc.
-* `.cfformat.json` - A CFFormat using the Ortus Standards
-* `.cflintrc` - A CFLint configuration file according to Ortus Standards
-* `.editorconfig` - Smooth consistency between editors
-* `.gitattributes` - Git attributes
-* `.gitignore` - Basic ignores. Modify as needed.
-* `.markdownlint.json` - A linting file for markdown docs
-* `box.json` - The box.json for YOUR module.  Modify as needed.
-* `changelog.md` - A nice changelog tracking file
-* `ModuleConfig.cfc` - Your module's configuration. Modify as needed.
-* `readme.md` - Your module's readme. Modify as needed.
-* `server-xx@x.json` - A set of json files to configure the major engines your modules supports.
+Configuration is validated without making a network request. The normalized configuration returned by `Config@cbtypesense` is copied so callers cannot mutate shared state.
 
-## Test Harness
+## Usage
 
-The test harness is created to bootstrap your working module into the application `afterAspectsLoad`.  This is done in the `config/ColdBox.cfc`.  It includes some key features:
+Inject the default façade or request an isolated named client from the factory:
 
-* `config` - Modify as needed
-* `tests` - All your testing specs should go here.  Please notice the commented out ORM fixtures.  Enable them if your module requires ORM
-* `.cfconfig.json` - A prepared cfconfig json file so your engine data is consistent.  Modify as needed.
-* `.env.sample` - An environment property file sample.  Copy and create a `.env` if your app requires it.
+```cfml
+property name="typesense" inject="Client@cbtypesense";
+property name="typesenseClients" inject="ClientFactory@cbtypesense";
 
+typesense.collections().create( schema );
+typesense.documents( "inventory_items" ).upsert( document );
+result = typesense.documents( "inventory_items" ).importDocuments(
+    documents,
+    action = "upsert"
+);
+searchResponse = typesense.search( "inventory_items", {
+    q : "blue dress",
+    query_by : "name,brand,model",
+    filter_by : "organization_id:=42"
+} );
+typesense.aliases().upsert( "inventory_items_current", "inventory_items_v1" );
 
-## API Docs
+indexer = typesenseClients.get( "indexer" );
+```
 
-The build task will take care of building API Docs using DocBox for you but **ONLY** for the `models` folder in your module.  If you want to document more then make sure you modify the `build/Build.cfc` task.
+Public endpoint clients cover collections and schemas, aliases, document CRUD/import/export/search, multi-search, API keys, local scoped-search-key generation, and health/debug/stats/metrics/snapshot operations.
 
-## Github Actions Automation
+`importDocuments()` accepts an array of structs, a generator closure, an object implementing `hasNext()` and `next()`, a line reader implementing `readLine()`, or prepared NDJSON. It returns `TypesenseImportResult`; always inspect its succeeded and failed counts. Set `throwOnFailure=true` when any failed line must abort the caller.
 
-The github actions will clone, test, package, deploy your module to ForgeBox and the Ortus S3 accounts for API Docs and Artifacts.  So please make sure the following environment variables are set in your repository. ** Please note that most of them are already defined at the org level **
+Use `request()` only as a forward-compatible escape hatch. It accepts relative paths only and still applies configured authentication, normalized errors, and retry safety.
 
-* `FORGEBOX_TOKEN` - The Ortus ForgeBox API Token
-* `AWS_ACCESS_KEY` - The travis user S3 account
-* `AWS_ACCESS_SECRET` - The travis secret S3
+## Responses and failures
 
-> Please contact the admins in the `#infrastructure` channel for these credentials if needed
+Calls return `TypesenseResponse`, which exposes status, parsed data, headers, request ID, and raw body. Search responses additionally expose `hits()`, `facetCounts()`, `found()`, `page()`, and `searchTimeMs()`.
 
-## Welcome to ColdBox
+Failures use `cbTypesense.AuthenticationException`, `PermissionException`, `NotFoundException`, `ValidationException`, `RateLimitException`, `ConnectionException`, or `ServerException`.
 
-ColdBox *Hierarchical* MVC is the de-facto enterprise-level [HMVC](https://en.wikipedia.org/wiki/Hierarchical_model%E2%80%93view%E2%80%93controller) framework for ColdFusion (CFML) developers. It's professionally backed, conventions-based, modular, highly extensible, and productive. Getting started with ColdBox is quick and painless.  ColdBox takes the pain out of development by giving you a standardized methodology for modern ColdFusion (CFML) development with features such as:
+Reads retry eligible connection, 408, 429, and server failures across configured nodes. Unsafe writes are never retried automatically. Explicitly idempotent upsert/import calls can opt in with `retry=true`.
 
-* [Conventions instead of configuration](https://coldbox.ortusbooks.com/getting-started/conventions)
-* [Modern URL routing](https://coldbox.ortusbooks.com/the-basics/routing)
-* [RESTFul APIs](https://coldbox.ortusbooks.com/the-basics/event-handlers/rendering-data)
-* [A hierarchical approach to MVC using ColdBox Modules](https://coldbox.ortusbooks.com/hmvc/modules)
-* [Event-driven programming](https://coldbox.ortusbooks.com/digging-deeper/interceptors)
-* [Async and Parallel programming constructs](https://coldbox.ortusbooks.com/digging-deeper/promises-async-programming)
-* [Integration & Unit Testing](https://coldbox.ortusbooks.com/testing/testing-coldbox-applications)
-* [Included dependency injection](https://wirebox.ortusbooks.com)
-* [Caching engine and API](https://cachebox.ortusbooks.com)
-* [Logging engine](https://logbox.ortusbooks.com)
-* [An extensive eco-system](https://forgebox.io)
-* Much More
+## Scoped search keys
 
-## Learning ColdBox
+Generate scoped keys locally from a search-only parent key. A `filter_by` restriction is required; `expires_at` is validated when present.
 
-ColdBox is the defacto standard for building modern ColdFusion (CFML) applications.  It has the most extensive [documentation](https://coldbox.ortusbooks.com) of all modern web application frameworks.
+```cfml
+scopedKey = getInstance( "ScopedKey@cbtypesense" ).generate(
+    parentKey = variables.parentSearchKey,
+    parameters = {
+        filter_by : "organization_id:=42 && visibility:=[organization]",
+        expires_at : dateAdd( "n", 15, now() ).getTime() / 1000
+    }
+);
+```
 
+The module does not decide tenant or ACL filters. That belongs to the consuming application.
 
-If you don't like reading so much, then you can try our video learning platform: [CFCasts (www.cfcasts.com)](https://www.cfcasts.com)
+## Development and verification
 
-## Ortus Sponsors
+```bash
+box install
+cd test-harness && box install && cd ..
+docker compose -f test-harness/compose.typesense.yml up -d
+box server start serverConfigFile=server-boxlang-cfml@1.json
+box testbox run
+box run-script format:check
+box run-script build:module
+```
 
-ColdBox is a professional open-source project and it is completely funded by the [community](https://patreon.com/ortussolutions) and [Ortus Solutions, Corp](https://www.ortussolutions.com).  Ortus Patreons get many benefits like a cfcasts account, a FORGEBOX Pro account and so much more.  If you are interested in becoming a sponsor, please visit our patronage page: [https://patreon.com/ortussolutions](https://patreon.com/ortussolutions)
+The live suite uses unique collections and cleans up its documents, aliases, and keys. Docker is used only for the external test service; no Typesense binary or image is included in the module artifact.
 
-### THE DAILY BREAD
+## License
 
- > "I am the way, and the truth, and the life; no one comes to the Father, but by me (JESUS)" Jn 14:1-12
+cbTypesense is released under the [MIT License](LICENSE).

@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] => 2021-JAN-01
+## [1.0.0] - 2026-08-31
 
-* First iteration of this module
+- Initial endpoint-oriented Typesense client.
+- Named connections, node failover, safe retries, normalized responses, and typed failures.
+- Collection, document, search, alias, API-key, operational, and scoped-key APIs.
+- Unit/contract coverage plus a live suite pinned to Typesense 29.0.
