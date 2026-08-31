@@ -10,7 +10,13 @@ services:
     volumes:
       - cbtypesense-data:/data
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--output-document=-", "http://127.0.0.1:8108/health"]
+      test:
+        [
+          "CMD",
+          "bash",
+          "-c",
+          "exec 3<>/dev/tcp/127.0.0.1/8108 && printf 'GET /health HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q '\"ok\":true' <&3",
+        ]
       interval: 2s
       timeout: 1s
       retries: 30
