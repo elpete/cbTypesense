@@ -111,6 +111,7 @@ jobs:
             changelog.md
 
       - name: Upload Binaries to S3
+        if: env.SNAPSHOT == 'false'
         uses: jakejarvis/s3-sync-action@master
         with:
           args: --acl public-read
@@ -122,6 +123,7 @@ jobs:
           DEST_DIR: "ortussolutions/coldbox-modules/${{ env.MODULE_ID }}"
 
       - name: Upload API Docs to S3
+        if: env.SNAPSHOT == 'false'
         uses: jakejarvis/s3-sync-action@master
         with:
           args: --acl public-read
@@ -135,6 +137,9 @@ jobs:
       - name: Publish To ForgeBox
         run: |
           cd .tmp/${{ env.MODULE_ID }}
+          if [ "${SNAPSHOT}" = "true" ]; then
+            box package set location=forgeboxStorage
+          fi
           cat box.json
           box forgebox publish --force
 
