@@ -24,10 +24,5 @@
 	"openBrowser":"false",
     "cfconfig":{
         "file":".cfconfig.json"
-    },
-    "env":{
-    },
-    "scripts":{
-        "onServerInitialInstall":""
     }
 }
