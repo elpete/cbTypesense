@@ -102,6 +102,21 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="root" {
 						deserializeJSON( "{""q"":""*"",""query_by"":""name""}" )
 					);
 					expect( scopedSearch.found() ).toBe( 1 );
+					var deletedByFilter = typesenseClient
+						.documents( collectionName )
+						.deleteByFilter( "organizationId:=org-1", 25 )
+						.getData();
+					expect( val( deletedByFilter.num_deleted ) ).toBe( 1 );
+					expect( function(){
+						typesenseClient.documents( collectionName ).retrieve( "1" );
+					} ).toThrow( type = "cbTypesense.NotFoundException" );
+					expect(
+						typesenseClient
+							.documents( collectionName )
+							.retrieve( "2" )
+							.getData()
+							.name
+					).toBe( "Red Prop" );
 
 					expect(
 						typesenseClient
@@ -128,10 +143,7 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="root" {
 							.isSuccess()
 					).toBeTrue();
 
-					typesenseClient.documents( collectionName ).delete( "1" );
-					expect( function(){
-						typesenseClient.documents( collectionName ).retrieve( "1" );
-					} ).toThrow( type = "cbTypesense.NotFoundException" );
+					typesenseClient.documents( collectionName ).delete( "2" );
 				} finally {
 					if ( createdKeyId ) {
 						try {

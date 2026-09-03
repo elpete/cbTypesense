@@ -63,6 +63,26 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="root" {
 				expect( result.getFailedCount() ).toBe( 1 );
 			} );
 
+			it( "deletes documents by a required bounded filter", function(){
+				var response = variables.client.documents( "items" ).deleteByFilter( "organizationId:=org-1", 75 );
+
+				expect( response.isSuccess() ).toBeTrue();
+				expect(
+					variables.hyper.wasRequestSent( function( req ){
+						return req.getMethod() == "DELETE" &&
+						find( "/collections/items/documents", req.getUrl() ) &&
+						req.getQueryParamByName( "filter_by" ) == "organizationId:=org-1" &&
+						val( req.getQueryParamByName( "batch_size" ) ) == 75;
+					} )
+				).toBeTrue();
+				expect( function(){
+					variables.client.documents( "items" ).deleteByFilter( "" );
+				} ).toThrow( type = "cbTypesense.ValidationException" );
+				expect( function(){
+					variables.client.documents( "items" ).deleteByFilter( "organizationId:=org-1", 0 );
+				} ).toThrow( type = "cbTypesense.ValidationException" );
+			} );
+
 			it( "accepts generator closures for bulk imports", function(){
 				var documents = [ { id : "1" }, { id : "2" } ];
 				var index     = 0;

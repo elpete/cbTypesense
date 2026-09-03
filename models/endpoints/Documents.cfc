@@ -42,6 +42,34 @@ component {
 		);
 	}
 
+	public any function deleteByFilter( required string filterBy, numeric batchSize = 40 ){
+		if ( !len( trim( arguments.filterBy ) ) ) {
+			throw(
+				type    = "cbTypesense.ValidationException",
+				message = "A filter_by expression is required when deleting documents by query."
+			);
+		}
+		if (
+			!isNumeric( arguments.batchSize ) ||
+			val( arguments.batchSize ) != int( val( arguments.batchSize ) ) ||
+			val( arguments.batchSize ) < 1 ||
+			val( arguments.batchSize ) > 1000
+		) {
+			throw(
+				type    = "cbTypesense.ValidationException",
+				message = "Document delete batchSize must be a whole number from 1 through 1000."
+			);
+		}
+		return variables.client.request(
+			method      = "DELETE",
+			path        = variables.basePath,
+			queryParams = {
+				filter_by  : trim( arguments.filterBy ),
+				batch_size : int( val( arguments.batchSize ) )
+			}
+		);
+	}
+
 	public any function search( required struct parameters ){
 		return variables.client.request(
 			method      = "GET",

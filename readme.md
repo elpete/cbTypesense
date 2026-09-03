@@ -67,6 +67,10 @@ result = typesense.documents( "inventory_items" ).importDocuments(
     documents,
     action = "upsert"
 );
+typesense.documents( "inventory_items" ).deleteByFilter(
+    filterBy = "organizationId:=organization-123",
+    batchSize = 100
+);
 searchResponse = typesense.search( "inventory_items", {
     q : "blue dress",
     query_by : "name,brand,model",
