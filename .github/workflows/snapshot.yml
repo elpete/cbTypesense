@@ -54,5 +54,7 @@ jobs:
       pull-requests: write
       contents: write
       issues: write
+      pages: write
+      id-token: write
     with:
       snapshot: true
