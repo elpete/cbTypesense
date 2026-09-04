@@ -11,8 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - 2026-09-04
 
-## [1.0.0] - 2026-08-31
-
 - Initial endpoint-oriented Typesense client.
 - Named connections, node failover, safe retries, normalized responses, and typed failures.
 - Collection, document, search, alias, API-key, operational, and scoped-key APIs.

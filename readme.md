@@ -2,6 +2,8 @@
 
 A resilient, endpoint-oriented [Typesense](https://typesense.org/) client for ColdBox applications. cbTypesense uses Hyper 8, supports named least-privilege connections, and keeps application-specific search projection and authorization outside the module.
 
+[API documentation](https://elpete.github.io/cbTypesense/)
+
 ## Compatibility
 
 - ColdBox 8

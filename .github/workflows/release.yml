@@ -44,6 +44,8 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Setup CommandBox
         uses: ortus-boxlang/setup-boxlang@main
@@ -60,8 +62,14 @@ jobs:
       - name: "Setup Environment Variables For Build Process"
         id: current_version
         run: |
-          echo "VERSION=`cat box.json | jq '.version' -r`" >> $GITHUB_ENV
+          VERSION=$(jq -r '.version' box.json)
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
           box package set version=@build.version@+@build.number@
+          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+            echo "TAG_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "TAG_EXISTS=false" >> $GITHUB_ENV
+          fi
           # master or snapshot
           echo "Github Ref is $GITHUB_REF"
           echo "BRANCH=master" >> $GITHUB_ENV
@@ -72,7 +80,7 @@ jobs:
 
       - name: Update changelog [unreleased] with latest version
         uses: thomaseizinger/keep-a-changelog-new-release@3.1.0
-        if: env.SNAPSHOT == 'false'
+        if: env.SNAPSHOT == 'false' && env.TAG_EXISTS == 'false'
         with:
           changelogPath: ./changelog.md
           tag: v${{ env.VERSION }}
@@ -86,7 +94,7 @@ jobs:
 
       - name: Commit Changelog [unreleased] with latest version
         uses: EndBug/add-and-commit@v11.0.0
-        if: env.SNAPSHOT == 'false'
+        if: env.SNAPSHOT == 'false' && env.TAG_EXISTS == 'false'
         with:
           author_name: Github Actions
           author_email: info@ortussolutions.com
@@ -110,36 +118,16 @@ jobs:
             .artifacts/**/*
             changelog.md
 
-      - name: Upload Binaries to S3
+      - name: Upload API Docs for GitHub Pages
         if: env.SNAPSHOT == 'false'
-        uses: jakejarvis/s3-sync-action@master
+        uses: actions/upload-pages-artifact@v4
         with:
-          args: --acl public-read
-        env:
-          AWS_S3_BUCKET: "downloads.ortussolutions.com"
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
-          SOURCE_DIR: ".artifacts/${{ env.MODULE_ID }}"
-          DEST_DIR: "ortussolutions/coldbox-modules/${{ env.MODULE_ID }}"
-
-      - name: Upload API Docs to S3
-        if: env.SNAPSHOT == 'false'
-        uses: jakejarvis/s3-sync-action@master
-        with:
-          args: --acl public-read
-        env:
-          AWS_S3_BUCKET: "apidocs.ortussolutions.com"
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_ACCESS_SECRET }}
-          SOURCE_DIR: ".tmp/apidocs"
-          DEST_DIR: "coldbox-modules/${{ env.MODULE_ID }}/${{ env.VERSION }}"
+          path: .tmp/apidocs
 
       - name: Publish To ForgeBox
         run: |
           cd .tmp/${{ env.MODULE_ID }}
-          if [ "${SNAPSHOT}" = "true" ]; then
-            box package set location=forgeboxStorage
-          fi
+          box package set location=forgeboxStorage
           cat box.json
           box forgebox publish --force
 
@@ -165,6 +153,22 @@ jobs:
           SLACK_USERNAME: CI
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
 
+  publish_docs:
+    name: Publish API Docs
+    if: ${{ !inputs.snapshot }}
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy API Docs to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
   ##########################################################################################
   # Prep Next Release
   ##########################################################################################
@@ -172,7 +176,7 @@ jobs:
     name: Prep Next Release
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    needs: [ build ]
+    needs: [ build, publish_docs ]
     permissions:
       checks: write
       pull-requests: write
