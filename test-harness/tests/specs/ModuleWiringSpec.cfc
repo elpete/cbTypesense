@@ -19,7 +19,16 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="root" {
 					createObject( "java", "java.lang.System" ).identityHashCode( second )
 				);
 			} );
+
+			it( "loads the public client from the configured module artifact", function(){
+				var clientPath = getMetadata( getInstance( "Client@cbtypesense" ) ).path;
+				expect( canonicalPath( clientPath ) ).toStartWith( canonicalPath( expandPath( "/cbtypesense" ) ) );
+			} );
 		} );
+	}
+
+	private string function canonicalPath( required string path ){
+		return createObject( "java", "java.io.File" ).init( arguments.path ).getCanonicalPath();
 	}
 
 }

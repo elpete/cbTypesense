@@ -66,6 +66,19 @@ jobs:
           box package set dependencies.coldbox=${{ matrix.coldboxVersion }}
           box install
 
+      - name: Build and install the packaged module
+        run: |
+          PACKAGE_VERSION=$(box package show version)
+          box task run taskFile=build/Build.cfc target=buildSource :projectName=cbtypesense :version=${PACKAGE_VERSION} :buildID=${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT} :branch=main
+          PACKAGE_ZIP=".artifacts/cbtypesense/${PACKAGE_VERSION}/cbtypesense-${PACKAGE_VERSION}.zip"
+          unzip -l "${PACKAGE_ZIP}"
+          if unzip -Z1 "${PACKAGE_ZIP}" | grep -E '(^|/)(test-harness|server[^/]*\.json|compose[^/]*\.ya?ml|\.env)(/|$)'; then
+            echo "The module package contains development infrastructure or secrets." >&2
+            exit 1
+          fi
+          box install ID="${PACKAGE_ZIP}" directory=test-harness/modules save=false force=true
+          echo "CBTYPESENSE_PACKAGE_PATH=${GITHUB_WORKSPACE}/test-harness/modules/cbtypesense" >> "${GITHUB_ENV}"
+
       - name: Start pinned Typesense 29.0 service
         run: |
           docker compose -f test-harness/compose.typesense.yml up -d --wait

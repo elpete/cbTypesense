@@ -4,7 +4,7 @@
     "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbtypesense/@build.version@/cbtypesense-@build.version@.zip",
     "author":"Eric Peterson <eric@elpete.com>",
     "homepage":"https://github.com/elpete/cbTypesense",
-    "documentation":"https://github.com/elpete/cbTypesense",
+    "documentation":"https://apidocs.ortussolutions.com/coldbox-modules/cbtypesense/@build.version@/",
     "repository":{
         "type":"git",
         "url":"https://github.com/elpete/cbTypesense"

@@ -125,6 +125,8 @@ box run-script build:module
 
 The live suite uses unique collections and cleans up its documents, aliases, and keys. Docker is used only for the external test service; no Typesense binary or image is included in the module artifact.
 
+CI builds the distributable ZIP before every engine job, installs it into a clean ColdBox test application's `modules/` directory, asserts that `Client@cbtypesense` resolves from that installed artifact, and runs the complete live lifecycle. Stable ColdBox 8 is certified on BoxLang, BoxLang CFML compatibility mode, Lucee 5/6, and Adobe ColdFusion 2023/2025; the current ColdBox bleeding-edge matrix is additional compatibility evidence.
+
 ## License
 
 cbTypesense is released under the [MIT License](LICENSE).

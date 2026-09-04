@@ -40,8 +40,14 @@ component{
 	this.mappings[ "/root" ] = COLDBOX_APP_ROOT_PATH;
 
 	// Map back to its root
-	moduleRootPath 	= REReplaceNoCase( this.mappings[ "/root" ], "#request.MODULE_NAME#(\\|/)test-harness(\\|/)", "" );
-	modulePath 		= REReplaceNoCase( this.mappings[ "/root" ], "test-harness(\\|/)", "" );
+	packagePath = createObject( "java", "java.lang.System" ).getEnv( "CBTYPESENSE_PACKAGE_PATH" );
+	if ( isNull( packagePath ) || !len( trim( packagePath ) ) ) {
+		moduleRootPath = REReplaceNoCase( this.mappings[ "/root" ], "#request.MODULE_NAME#(\\|/)test-harness(\\|/)", "" );
+		modulePath     = REReplaceNoCase( this.mappings[ "/root" ], "test-harness(\\|/)", "" );
+	} else {
+		modulePath     = createObject( "java", "java.io.File" ).init( packagePath ).getCanonicalPath();
+		moduleRootPath = modulePath;
+	}
 
 	// Module Root + Path Mappings
 	this.mappings[ "/moduleroot" ] = moduleRootPath;

@@ -33,8 +33,15 @@ component {
 		"#request.MODULE_PATH#(\\|/)test-harness(\\|/)",
 		""
 	);
+	packagePath = createObject( "java", "java.lang.System" ).getEnv( "CBTYPESENSE_PACKAGE_PATH" );
+	if ( !isNull( packagePath ) && len( trim( packagePath ) ) ) {
+		modulePath     = createObject( "java", "java.io.File" ).init( packagePath ).getCanonicalPath();
+		moduleRootPath = modulePath;
+	} else {
+		modulePath = moduleRootPath & request.MODULE_PATH;
+	}
 	this.mappings[ "/moduleroot" ]            = moduleRootPath;
-	this.mappings[ "/#request.MODULE_NAME#" ] = moduleRootPath & "#request.MODULE_PATH#";
+	this.mappings[ "/#request.MODULE_NAME#" ] = modulePath;
 
 	// ORM Definitions
 	/**
