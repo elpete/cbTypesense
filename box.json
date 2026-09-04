@@ -1,6 +1,6 @@
 {
     "name":"cbTypesense",
-    "version":"1.0.0",
+    "version":"1.1.0",
     "location":"https://downloads.ortussolutions.com/ortussolutions/coldbox-modules/cbtypesense/@build.version@/cbtypesense-@build.version@.zip",
     "author":"Eric Peterson <eric@elpete.com>",
     "homepage":"https://github.com/elpete/cbTypesense",
